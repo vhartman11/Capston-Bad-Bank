@@ -34,11 +34,11 @@ app.get('/account/login/:email/:password', function (req, res) {
         then((user) => {
             console.log(user);
             res.send(user);   
-    })
-    .catch(err => {
+        })
+        .catch(err => {
         console.log('error')
         res.send(err)
-    })
+        });
 });
 
 // find one user by email - alternative to find
@@ -47,19 +47,29 @@ app.get('/account/findOne/:email', function (req, res) {
         .then((user) => {
             console.log(user);
             res.send(user);
-    });
+        });
 });
 
-// update - deposit/withdraw amount
-app.get('/account/update/:email/:amount', function (req, res) {
+// update - deposit amount
+app.get('/account/deposit/:email/:amount', function (req, res) {
     var amount = Number(req.params.amount);
-    dal.update(req.params.email, amount)
+    dal.deposit(req.params.email, amount)
         .then((response) => {
             console.log(response);
             res.send(response);
-    });    
+        });    
 });
 
-let port = 3000;
+// update - withdraw amount
+app.get('/account/withdraw/:email/:amount', function (req, res) {
+    var amount = Number(req.params.amount);
+    dal.withdraw(req.params.email, amount)
+        .then((response) => {
+            console.log(response);
+            res.send(response);
+        });    
+});
+
+let port = 8080;
 app.listen(port);
 console.log('Running on port: ' + port);

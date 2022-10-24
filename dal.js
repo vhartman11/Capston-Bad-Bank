@@ -7,7 +7,7 @@ MongoClient.connect(url, {useUnifiedTopology: true}, function(err, client) {
     console.log('Connected successfully to db server');
 
     // connect to myproject database
-   db = client.db('myproject');
+   db = client.db('badbank');
 });
 
 // create user account
@@ -34,15 +34,31 @@ function all() {
     });
 };
 
-// update - deposit/withdraw amount
-function update(email, amount) {
+// update - deposit amount
+function deposit(email, amount) {
     return new Promise((resolve, reject) => {
         const customers = db
             .collection('users')
             .findOneAndUpdate(
                 { email: email },
                 { $inc: { balance: amount } },
-                { returnOriginal: false },
+                { returnDocument: 'after'},
+                function (err, documents) {
+                    err ? reject(err) : resolve(documents);
+                }
+            );
+    });
+};
+
+// update - withdraw amount
+function withdraw(email, amount) {
+    return new Promise((resolve, reject) => {
+        const customers = db
+            .collection('users')
+            .findOneAndUpdate(
+                { email: email },
+                { $inc: { balance: -amount } },
+                { returnDocument: 'after' },
                 function (err, documents) {
                     err ? reject(err) : resolve(documents);
                 }
@@ -69,13 +85,13 @@ function login(email, password) {
             .find({ email: email })
             .toArray(function (err, docs) {
                 try {
-                    err ? reject('DB err') : docs[0].password === password ? resolve(docs) : reject('Incorrect password')
+                    err ? reject('DB err') : docs[0].password === password ? resolve(docs) : reject('Please try again.')
                 } catch {
-                    reject('incorrect user')
+                    reject('Please try again.')
                 }
                  
             });
     });
 };
 
-module.exports = {create, all, login, findOne, update};
+module.exports = {create, all, login, findOne, deposit, withdraw};
